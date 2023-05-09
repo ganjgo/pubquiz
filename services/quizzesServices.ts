@@ -1,10 +1,10 @@
 import axios from "axios";
 
 interface Quiz {
-  id: number;
+  id?: number;
   name: string;
-  questions: any[];
-  results: any[];
+  questions?: any[];
+  results?: any[];
 }
 
 interface Question {
@@ -51,6 +51,11 @@ const quizServices = {
     );
     return data;
   },
+  create: async (quiz: Quiz) => {
+    console.log(quiz, "quiz");
+    const { data } = await axios.post("/api/quizzes", quiz);
+    return data;
+  }
 };
 
 export default quizServices;

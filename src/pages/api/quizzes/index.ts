@@ -64,5 +64,14 @@ export default async function handler(
       },
     });
     return res.status(200).json(quiz);
+  } else if (req.method === "POST") {
+    const name = req.body;
+    console.log(name.name, "name");
+    const newQuiz = await prisma.quizzes.create({
+      data: {
+        name: name.name,
+      },
+    });
+    return res.status(200).json(newQuiz);
   }
 }

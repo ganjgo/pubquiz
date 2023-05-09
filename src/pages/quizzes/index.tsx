@@ -25,7 +25,7 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import NoContent from "../../../components/common/NoContent";
-import { BsTrash } from "react-icons/bs";
+import { BsPlus, BsTrash } from "react-icons/bs";
 
 interface Quiz {
   id: number;
@@ -96,7 +96,13 @@ export default function Quizzes({}: Props) {
           {/*  Page title */}
           <Heading fontWeight={"normal"}>Kvizovi</Heading>
           {/* Add multi button if needed */}
-          <HStack>Novi Kviz</HStack>
+          <HStack>
+            <Link href="/quizzes/newquiz">
+              <Button colorScheme={"blue"} rightIcon={<BsPlus />}>
+                Novi Kviz
+              </Button>
+            </Link>
+          </HStack>
         </HStack>
         {/* Page content */}
 
