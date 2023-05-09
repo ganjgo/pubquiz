@@ -38,18 +38,60 @@ import { BsArrowDownCircle, BsPlus, BsTrash } from "react-icons/bs";
 
 import * as yup from "yup";
 import { useSession } from "next-auth/react";
-// import QuestionLine from "../components/question/questionLine";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import questionServices from "../services/questionsServices";
+import quizServices from "../services/quizzesServices";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import ErrorPage from "../components/common/ErrorPage";
 
 type Props = {
-  quizQuestions: any[];
+  quizData: any;
 };
 
-export default function QuestionsFromDB({ quizQuestions }: Props) {
+export default function QuestionsFromDB({ quizData }: Props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [showAnswer, setShowAnswer] = React.useState(false);
+
+  const queryClient = useQueryClient();
   const toast = useToast();
+
+  const { mutate: connectQuestion } = useMutation(
+    quizServices.connectQuestion,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["quizzes"]);
+        toast({
+          title: "Pitanje je dodato u kviz.",
+          status: "success",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Pitanje nije dodato u kviz.",
+          status: "error",
+        });
+      },
+    }
+  );
+
+  const { mutate: disconnectQuestion } = useMutation(
+    quizServices.disconnectQuestion,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["quizzes"]);
+        toast({
+          title: "Pitanje je uklonjeno iz kviza.",
+          status: "success",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Pitanje nije uklonjeno iz kviza.",
+          status: "error",
+        });
+      },
+    }
+  );
 
   const { isLoading, isError, data } = useQuery({
     queryKey: ["questions"],
@@ -58,7 +100,21 @@ export default function QuestionsFromDB({ quizQuestions }: Props) {
     },
   });
 
-  console.log(data);
+  if (isLoading)
+    return (
+      <>
+        <LoadingSpinner />
+      </>
+    );
+
+  if (isError)
+    return (
+      <>
+        <ErrorPage />
+      </>
+    );
+
+  console.log(quizData, "quizData");
 
   return (
     <>
@@ -130,20 +186,33 @@ export default function QuestionsFromDB({ quizQuestions }: Props) {
                             </PopoverFooter>
                           </PopoverContent>
                         </Popover>
-                        {quizQuestions &&
-                        quizQuestions.some(
+                        {quizData &&
+                        quizData.questions &&
+                        quizData.questions.some(
                           (question: any) => question.id === item.id
                         ) ? (
                           <IconButton
                             aria-label="Add to quiz"
                             icon={<BsTrash />}
                             colorScheme="red"
+                            onClick={() => {
+                              disconnectQuestion({
+                                quizId: quizData.id,
+                                questionId: item.id,
+                              });
+                            }}
                           />
                         ) : (
                           <IconButton
                             aria-label="Add to quiz"
                             icon={<BsPlus />}
                             colorScheme="green"
+                            onClick={() => {
+                              connectQuestion({
+                                quizId: quizData.id,
+                                questionId: item.id,
+                              });
+                            }}
                           />
                         )}
                       </HStack>
@@ -166,9 +235,9 @@ export default function QuestionsFromDB({ quizQuestions }: Props) {
           <ModalFooter>
             <Badge>
               Ukupno pitanja u kvizu :{" "}
-              {quizQuestions && quizQuestions.length > 0
-                ? quizQuestions.length
-                : "1"}
+              {quizData && quizData.questions && quizData.questions.length > 0
+                ? quizData.questions.length
+                : "0"}
             </Badge>
           </ModalFooter>
         </ModalContent>

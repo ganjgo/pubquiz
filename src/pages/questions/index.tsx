@@ -47,6 +47,8 @@ export default function Questions({}: Props) {
     },
   });
 
+  console.log(data);
+
   const { mutate } = useMutation(questionServices.remove, {
     onSuccess: () => {
       queryClient.invalidateQueries(["questions"]);

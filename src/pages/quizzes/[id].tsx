@@ -62,6 +62,25 @@ export default function Quiz({}: Props) {
     quizName: yup.string().required("Required"),
   });
 
+  const { mutate: disconnectQuestion } = useMutation(
+    quizServices.disconnectQuestion,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["quizzes"]);
+        toast({
+          title: "Pitanje je uklonjeno iz kviza.",
+          status: "success",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Pitanje nije uklonjeno iz kviza.",
+          status: "error",
+        });
+      },
+    }
+  );
+
   const {
     handleSubmit,
     values,
@@ -79,14 +98,23 @@ export default function Quiz({}: Props) {
     onSubmit: async () => {
       if (values.quizName) {
         console.log("values", values);
-        let dataUpdateQuiz = {
-          id: id,
-          name: values.quizName,
-          // questionIds: quizData.questions,
+        let newName = {
+          quizId: Number(id),
+          quizName: values.quizName,
         };
-        console.log("dataUpdateQuiz", dataUpdateQuiz);
-        // await updateQuizMutation.mutateAsync(dataUpdateQuiz)
-        // mutate(dataUpdateQuiz);
+        try {
+          await quizServices.updateName(newName);
+          queryClient.invalidateQueries(["quizzes"]);
+          toast({
+            title: "Ime kviza je ažurirano.",
+            status: "success",
+          });
+        } catch (error) {
+          toast({
+            title: `Greška prilikom ažuriranja imena kviza, pokušajte ponovno.`,
+            status: "error",
+          });
+        }
       }
     },
   });
@@ -97,6 +125,12 @@ export default function Quiz({}: Props) {
       return await quizServices.fetchOne(Number(id));
     },
   });
+
+  React.useEffect(() => {
+    if (data) {
+      setFieldValue("quizName", data.name);
+    }
+  }, [setFieldValue, data]);
 
   if (isLoading)
     return (
@@ -131,7 +165,7 @@ export default function Quiz({}: Props) {
             {" "}
             <Button
               type={"submit"}
-              form={"customer-update-form"}
+              form={"player-update-form"}
               colorScheme={"blue"}
               // isLoading={onUpdateSpinner}
             >
@@ -143,7 +177,7 @@ export default function Quiz({}: Props) {
         <Stack>
           {data.length === 0 ? (
             <>
-              <NoContent message="Kviz nepostoji!" />
+              <NoContent message="Kviz ne postoji!" />
             </>
           ) : (
             <>
@@ -187,9 +221,12 @@ export default function Quiz({}: Props) {
                         </FormLabel>
                         <HStack justify={"end"}>
                           <QuestionsFromDB
-                          quizQuestions = {data.questions}
+                            quizData={{
+                              questions: data.questions,
+                              id: data.id,
+                            }}
                           />
-                          <NewQuestion />
+                          <NewQuestion fromQuiz={data.id} />
                         </HStack>
                       </FormControl>
                       {data && data.questions && (
@@ -280,6 +317,12 @@ export default function Quiz({}: Props) {
                                             icon={<BsTrash />}
                                             colorScheme="red"
                                             variant={"outline"}
+                                            onClick={() => {
+                                              disconnectQuestion({
+                                                quizId: data.id,
+                                                questionId: question.id,
+                                              });
+                                            }}
                                           />
                                         </HStack>
                                       </Td>

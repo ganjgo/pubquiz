@@ -25,29 +25,55 @@ import * as yup from "yup";
 import { useFormik } from "formik";
 import { BsExclamationCircleFill, BsPlus } from "react-icons/bs";
 import questionServices from "../services/questionsServices";
+import quizServices from "../services/quizzesServices";
 
-type Props = {};
+type Props = {
+  fromQuiz?: number;
+};
 
 const validationSchema = yup.object().shape({
   question: yup.string().required("Required"),
   answer: yup.string().required("Required"),
 });
 
-export default function NewQuestion({}: Props) {
+export default function NewQuestion({ fromQuiz }: Props) {
   const queryClient = useQueryClient();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [onCreateSpinner, setOnCreateSpinner] = React.useState<boolean>(false);
 
+  const { mutate: connectQuestion } = useMutation(
+    quizServices.connectQuestion,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["quizzes"]);
+        toast({
+          title: "Pitanje je dodato u kviz.",
+          status: "success",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Pitanje nije dodato u kviz.",
+          status: "error",
+        });
+      },
+    }
+  );
+
   const { mutate, isLoading } = useMutation(questionServices.create, {
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("dataID", data.data.id);
       queryClient.invalidateQueries(["questions"]);
       setOnCreateSpinner(false);
       toast({
         title: "Pitanje je dodato.",
         status: "success",
       });
+      if (fromQuiz) {
+        connectQuestion({ quizId: fromQuiz, questionId: data.data.id });
+      }
     },
     onError: (error) => {
       setOnCreateSpinner(false);
@@ -151,7 +177,11 @@ export default function NewQuestion({}: Props) {
               type="submit"
               form={"question-form"}
             >
-              Dodaj pitanje
+              {fromQuiz ? (
+                <>Dodaj pitanje u kviz i u arhivu</>
+              ) : (
+                <>Dodaj pitanje</>
+              )}
             </Button>
           </ModalFooter>
         </ModalContent>
