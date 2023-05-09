@@ -9,7 +9,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/enterwell.png" />
       </Head>
-      <main>Ovdje bi se moglo dodati posljednji puta kada je neko igrao kviz</main>
+      <main>Ovdje bi se moglo dodati posljednji puta kada je neko igrao kviz.</main>
     </>
   );
 }
