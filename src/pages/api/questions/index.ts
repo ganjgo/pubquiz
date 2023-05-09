@@ -22,5 +22,15 @@ export default async function handler(
       },
     });
     return res.status(200).json(question);
+  } else if (req.method === "POST") {
+    const { question, answer } = req.body;
+
+    const newQuestion = await prisma.questions.create({
+      data: {
+        question,
+        answer,
+      },
+    });
+    return res.status(200).json(newQuestion);
   }
 }

@@ -7,6 +7,11 @@ interface Question {
   quizId?: number;
 }
 
+interface newQuestion {
+  question: string;
+  answer: string;
+}
+
 const questionServices = {
   fetchAll: async () => {
     const { data } = await axios.get("/api/questions");
@@ -19,7 +24,11 @@ const questionServices = {
       .then((res) => {
         console.log("res", res);
       });
-    return JSON.stringify(data);;
+    return JSON.stringify(data);
+  },
+  create: async (newQuestion: newQuestion) => {
+    const data = await axios.post("/api/questions", newQuestion);
+    return data;
   },
 };
 

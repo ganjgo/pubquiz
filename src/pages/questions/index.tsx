@@ -12,6 +12,8 @@ import {
   Td,
   Tr,
   useToast,
+  Text,
+  Box,
 } from "@chakra-ui/react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import React from "react";
@@ -21,10 +23,11 @@ import PageBox from "../../../components/common/PageBox";
 import NoContent from "../../../components/common/NoContent";
 import { BsTrash } from "react-icons/bs";
 import ErrorPage from "../../../components/common/ErrorPage";
+import NewQuestion from "../../../modals/newQuestion";
 
 type Props = {};
 
-interface Question {
+export interface Question {
   id: number;
   question: string;
   answer: string;
@@ -35,7 +38,7 @@ export default function Questions({}: Props) {
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const [questionArray, setQuestionArray] = React.useState<Question[]>([]);
+  const [showAnswers, setShowAnswers] = React.useState<boolean>(false);
 
   const { isLoading, isError, data } = useQuery({
     queryKey: ["questions"],
@@ -60,10 +63,6 @@ export default function Questions({}: Props) {
     },
   });
 
-  React.useEffect(() => {
-    setQuestionArray(data);
-  }, [data]);
-
   if (isLoading)
     return (
       <>
@@ -87,11 +86,13 @@ export default function Questions({}: Props) {
       </Head>
       <PageBox>
         {/* Page header */}
-        <HStack justify={"space-between"}>
+        <HStack justify={"space-between"} mb="10">
           {/*  Page title */}
           <Heading fontWeight={"normal"}>Pitanja</Heading>
           {/* Add multi button if needed */}
-          <HStack>{/* <NewQuestion reload/> */}</HStack>
+          <HStack>
+            <NewQuestion/>
+          </HStack>
         </HStack>
         {/* Page content */}
         <Stack
@@ -114,8 +115,8 @@ export default function Questions({}: Props) {
                 <TableContainer w="100%">
                   <Table variant="simple" w="100%">
                     <Tbody>
-                      {questionArray &&
-                        questionArray.map((item: Question) => (
+                      {data &&
+                        data.map((item: Question) => (
                           <Tr
                             flexDir={["column", "row"]}
                             justifyContent="center"
@@ -127,7 +128,33 @@ export default function Questions({}: Props) {
                             zIndex={1}
                             key={item.id}
                           >
-                            <Td>{item.question}</Td>
+                            <Td>
+                              <Box fontWeight="bold">
+                                <Box
+                                  fontWeight="normal"
+                                  display="inline-block"
+                                  mr="1"
+                                  fontSize={showAnswers ? "sm" : "0"}
+                                >
+                                  {showAnswers ? "Pitanje: " : ""}
+                                </Box>
+                                {item.question}
+                              </Box>
+                              {showAnswers && (
+                                <Box fontWeight="bold">
+                                  <Box
+                                    fontWeight="normal"
+                                    display="inline-block"
+                                    mr="1"
+                                    fontSize="sm"
+                                  >
+                                    Odgovor:
+                                  </Box>
+
+                                  {item.answer}
+                                </Box>
+                              )}
+                            </Td>
                             <Td isNumeric>
                               {/* <AddQuestion2Quiz /> */}
                               <IconButton
@@ -148,6 +175,14 @@ export default function Questions({}: Props) {
             </>
           )}
         </Stack>
+        <HStack justify={"end"} mt={"4"}>
+          <Button
+            colorScheme={showAnswers ? "red" : "green"}
+            onClick={() => setShowAnswers(!showAnswers)}
+          >
+            {showAnswers ? "Sakrij odgovore" : "Prikazi odgovore"}
+          </Button>
+        </HStack>
       </PageBox>
     </>
   );
