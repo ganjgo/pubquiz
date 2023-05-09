@@ -1,55 +1,27 @@
 import Head from "next/head";
 import React from "react";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Box,
   Button,
-  Container,
-  FormControl,
-  FormLabel,
-  Grid,
-  GridItem,
   Heading,
   HStack,
-  Icon,
-  IconButton,
-  Input,
-  List,
-  ListItem,
   Stack,
   Table,
   TableContainer,
   Tbody,
   Td,
   Text,
-  Textarea,
   Th,
   Thead,
-  Tooltip,
   Tr,
-  useToast,
-  useMediaQuery,
-  Hide,
   Badge,
 } from "@chakra-ui/react";
-import quizServices from "../../../services/quizzesServices";
 import { useRouter } from "next/router";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import ErrorPage from "../../../components/common/ErrorPage";
 import PageBox from "../../../components/common/PageBox";
 import NoContent from "../../../components/common/NoContent";
-import {
-  BsExclamationCircleFill,
-  BsLightbulbFill,
-  BsLightbulbOffFill,
-  BsTrash,
-} from "react-icons/bs";
-import * as yup from "yup";
-import { useFormik } from "formik";
-import { Question } from "../questions";
-import NewQuestion from "../../../modals/newQuestion";
-import QuestionsFromDB from "../../../modals/questionsFromDB";
-import Link from "next/link";
 import resultServices from "../../../services/resultsServices";
 
 type Props = {};
@@ -58,12 +30,7 @@ export default function Result({}: Props) {
   const router = useRouter();
   const { id } = router.query;
 
-  const [answersOn, setAnswersOn] = React.useState(false);
-  const [isLargerThanPhone] = useMediaQuery("(min-width: 640px)");
   const [isOriginalAnswer, setIsOriginalAnswer] = React.useState(false);
-
-  const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { isLoading, isError, data } = useQuery({
     queryKey: ["results"],

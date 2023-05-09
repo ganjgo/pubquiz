@@ -31,6 +31,13 @@ const resultServices = {
     });
     return data;
   },
+  updateUsername: async (updateResult : any) => {
+    console.log(updateResult.username, "username");
+    const { data } = await axios.put(`/api/results?id=${updateResult.id}`, {
+      updateResult,
+    });
+    return data;
+  },
 };
 
 export default resultServices;

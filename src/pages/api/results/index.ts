@@ -29,5 +29,19 @@ export default async function handler(
       });
       return res.status(200).json(results);
     }
+  } else if (req.method === "PUT") {
+    const  dataForUpdate  = req.body;
+    console.log(dataForUpdate.username,'username');
+    if (dataForUpdate.id) {
+      const result = await prisma.results.update({
+        where: {
+          id: parseInt(dataForUpdate.id as any),
+        },
+        data: {
+          username: dataForUpdate.username,
+        },
+      });
+      return res.status(200).json(result);
+    }
   }
 }
