@@ -106,7 +106,7 @@ export default function Quiz({}: Props) {
           await quizServices.updateName(newName);
           queryClient.invalidateQueries(["quizzes"]);
           toast({
-            title: "Ime kviza je ažurirano.",
+            title: "Kviz je ažuriran.",
             status: "success",
           });
         } catch (error) {
@@ -118,6 +118,8 @@ export default function Quiz({}: Props) {
       }
     },
   });
+
+
 
   const { isLoading, isError, data } = useQuery({
     queryKey: ["quizzes"],
@@ -131,6 +133,24 @@ export default function Quiz({}: Props) {
       setFieldValue("quizName", data.name);
     }
   }, [setFieldValue, data]);
+
+  const [inputValue, setInputValue] = React.useState(values.quizName);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      handleSubmit();
+    }, 2000);
+  
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [inputValue, handleSubmit]);
+  
+  const handleChangeAuto = (event: any) => {
+    handleChange(event);
+    setInputValue(event.target.value);
+  };
+  
 
   if (isLoading)
     return (
@@ -161,17 +181,6 @@ export default function Quiz({}: Props) {
           {/*  Page title */}
           <Heading fontWeight={"normal"}>Kviz: {data.name}</Heading>
           {/* Add multi button if needed */}
-          <HStack>
-            {" "}
-            <Button
-              type={"submit"}
-              form={"player-update-form"}
-              colorScheme={"blue"}
-              // isLoading={onUpdateSpinner}
-            >
-              Spremi
-            </Button>
-          </HStack>
         </HStack>
         {/* Page content */}
         <Stack>
@@ -202,7 +211,7 @@ export default function Quiz({}: Props) {
                           key="quizName"
                           value={values.quizName}
                           name="quizName"
-                          onChange={handleChange}
+                          onChange={handleChangeAuto}
                           onBlur={handleBlur}
                           placeholder="Unesite naziv novog kviza"
                         />
