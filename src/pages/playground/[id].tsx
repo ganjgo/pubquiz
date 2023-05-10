@@ -7,23 +7,26 @@ import {
   FormLabel,
   HStack,
   Icon,
-  Input,
   Stack,
   Text,
   Textarea,
-  VStack,
+  useToast,
 } from "@chakra-ui/react";
 import React from "react";
-import { BsArrowRight, BsExclamationCircleFill } from "react-icons/bs";
+import {
+  BsArrowLeft,
+  BsArrowRight,
+  BsExclamationCircleFill,
+} from "react-icons/bs";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import PlayerForm from "../../components/playground/playerForm";
-import QuizFinalWords from "../../components/playground/quizFinalWord";
-import resultServices from "../../services/resultsServices";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
-import ErrorPage from "../../components/common/ErrorPage";
+import PlayerForm from "../../../components/playground/playerForm";
+import QuizFinalWords from "../../../components/playground/quizFinalWord";
+import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import ErrorPage from "../../../components/common/ErrorPage";
+import quizServices from "../../../services/quizzesServices";
 
 type Props = {};
 
@@ -40,8 +43,18 @@ function Playground({}: Props) {
   const [userName, setUserName] = React.useState<string>("");
   const [arrayUserAnswers, setArrayUserAnswers] = React.useState<any[]>([]);
 
+  const toast = useToast();
+
   const nextSlide = () => {
-    setCurrentIndex(currentIndex + 1);
+    if (currentIndex !== ArrayOfThisQuiz.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const previousSlide = () => {
+    if (currentIndex !== 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
   };
 
   const validationSchema = yup.object().shape({
@@ -85,17 +98,16 @@ function Playground({}: Props) {
     },
   });
 
-
   const { isLoading, isError, data } = useQuery({
-    queryKey: ["results"],
+    queryKey: ["quizzes"],
     queryFn: async () => {
-      return await resultServices.fetchOne(Number(id));
+      return await quizServices.fetchOne(Number(id));
     },
     enabled: id !== undefined,
   });
 
-  if (data && data.quiz.questions.length > 0) {
-    data.quiz.questions.forEach((question: any) => {
+  if (data && data.questions && data.questions.length > 0) {
+    data.questions.forEach((question: any) => {
       let questionObject = {
         id: question.id,
         question: question.question,
@@ -104,6 +116,17 @@ function Playground({}: Props) {
       ArrayOfThisQuiz.push(questionObject);
     });
   }
+
+  React.useEffect(() => {
+    toast({
+      title: "Ovo je testna verzija kviza, nije moguće editovati.",
+      position: "bottom-right",
+      isClosable: true,
+      duration: 10000,
+      description:
+        "Ukoliko želite da editujete kviz, možete to uraditi na stranici kvizova.",
+    });
+  }, []);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -122,12 +145,7 @@ function Playground({}: Props) {
       </>
     );
 
-  if (data.userAnswers.length > 0)
-    return (
-      <>
-        <ErrorPage message="Ovaj kviz je završen. Hvala na interesovanju!" />
-      </>
-    );
+  console.log(data);
 
   return (
     <Box
@@ -155,6 +173,7 @@ function Playground({}: Props) {
                 setInitialWord={setInitialWord}
                 resultId={id}
                 setUserName={setUserName}
+                isTest
               />
             </>
           ) : finalWord ? (
@@ -191,50 +210,26 @@ function Playground({}: Props) {
                           <Box fontSize="2xl">{currentIndex + 1}.</Box>
                           <Text>{ArrayOfThisQuiz[currentIndex].question}</Text>
                         </HStack>
-                        {ShowAnswer && notActiveUser ? (
-                          <>
-                            {" "}
-                            <FormControl>
-                              <FormLabel>Odgovor pitanja</FormLabel>
-                              <Box
-                                bg="green.200"
-                                p="4"
-                                borderRadius="lg"
-                                fontSize="xl"
-                              >
-                                <Text>
-                                  {ArrayOfThisQuiz[currentIndex].answer}
-                                </Text>
-                              </Box>
-                            </FormControl>
-                          </>
-                        ) : (
-                          <>
-                            {" "}
-                            <FormControl>
-                              <FormLabel>Odgovor pitanja</FormLabel>
-                              <Textarea
-                                id="answer"
-                                value={values.answer}
-                                name="answer"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                placeholder="Odogovor na pitanje"
-                              />
-                              {touched.answer && errors.answer && (
-                                <HStack color={"red.500"} mt={2}>
-                                  <Icon
-                                    as={BsExclamationCircleFill}
-                                    boxSize={5}
-                                  />
-                                  <Text fontWeight={"medium"} fontSize={"sm"}>
-                                    {errors.answer}
-                                  </Text>
-                                </HStack>
-                              )}
-                            </FormControl>
-                          </>
-                        )}
+                        <FormControl>
+                          <FormLabel>Odgovor pitanja</FormLabel>
+                          <Textarea
+                            id="answer"
+                            value={ArrayOfThisQuiz[currentIndex].answer}
+                            name="answer"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            placeholder="Odogovor na pitanje"
+                            isDisabled
+                          />
+                          {touched.answer && errors.answer && (
+                            <HStack color={"red.500"} mt={2}>
+                              <Icon as={BsExclamationCircleFill} boxSize={5} />
+                              <Text fontWeight={"medium"} fontSize={"sm"}>
+                                {errors.answer}
+                              </Text>
+                            </HStack>
+                          )}
+                        </FormControl>
                       </Stack>
                     </>
                   </form>
@@ -259,19 +254,24 @@ function Playground({}: Props) {
                 ) : null}
                 <HStack>
                   <Button
-                    type="submit"
-                    form={`form-${currentIndex}`}
+                    type="button"
                     variant={"solid"}
-                    colorScheme={
-                      currentIndex === ArrayOfThisQuiz.length - 1
-                        ? "green"
-                        : "blue"
-                    }
-                    rightIcon={<BsArrowRight />}
+                    colorScheme={"blue"}
+                    leftIcon={<BsArrowLeft />}
+                    onClick={previousSlide}
+                    isDisabled={currentIndex === 0}
                   >
-                    {currentIndex === ArrayOfThisQuiz.length - 1
-                      ? "Završi"
-                      : "Sljedeće pitanje"}
+                    Prethodno pitanje
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={"solid"}
+                    colorScheme={"green"}
+                    rightIcon={<BsArrowRight />}
+                    onClick={nextSlide}
+                    isDisabled={currentIndex === ArrayOfThisQuiz.length - 1}
+                  >
+                    Sljedeće pitanje
                   </Button>
                 </HStack>
               </HStack>

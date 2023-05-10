@@ -1,7 +1,6 @@
 import Head from "next/head";
 import {
   Button,
-  Center,
   Heading,
   HStack,
   IconButton,
@@ -12,7 +11,6 @@ import {
   Td,
   Tr,
   useToast,
-  Text,
   Box,
 } from "@chakra-ui/react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -24,6 +22,7 @@ import NoContent from "../../../components/common/NoContent";
 import { BsTrash } from "react-icons/bs";
 import ErrorPage from "../../../components/common/ErrorPage";
 import NewQuestion from "../../../modals/newQuestion";
+import quizServices from "../../../services/quizzesServices";
 
 type Props = {};
 
@@ -33,6 +32,8 @@ export interface Question {
   answer: string;
   quiz: any[];
 }
+
+// here i need to add quiz type
 
 export default function Questions({}: Props) {
   const queryClient = useQueryClient();
@@ -47,7 +48,12 @@ export default function Questions({}: Props) {
     },
   });
 
-  console.log(data);
+  const { data: quizzes } = useQuery({
+    queryKey: ["quizzes"],
+    queryFn: async () => {
+      return await quizServices.fetch();
+    },
+  });
 
   const { mutate } = useMutation(questionServices.remove, {
     onSuccess: () => {
@@ -78,6 +84,8 @@ export default function Questions({}: Props) {
       </>
     );
 
+  console.log(quizzes.length);
+
   return (
     <>
       <Head>
@@ -88,14 +96,23 @@ export default function Questions({}: Props) {
       </Head>
       <PageBox>
         {/* Page header */}
-        <HStack justify={"space-between"} mb="10">
+        <Stack justify={"space-between"} mb="10" direction={"row"}>
           {/*  Page title */}
           <Heading fontWeight={"normal"}>Pitanja</Heading>
           {/* Add multi button if needed */}
           <HStack>
-            <NewQuestion />
+            {quizzes.length ? (
+              <>
+                <NewQuestion />
+              </>
+            ) : (
+              <>
+                {" "}
+                <Button isDisabled>Neophodno je kreirati kviz!</Button>
+              </>
+            )}
           </HStack>
-        </HStack>
+        </Stack>
         {/* Page content */}
         <Stack
           border={"1px solid"}
@@ -107,7 +124,7 @@ export default function Questions({}: Props) {
           maxH={"calc(100vh - 200px)"}
           overflowY="scroll"
         >
-          {data.length === 0 ? (
+          {quizzes.length === 0 ? (
             <>
               <NoContent message="Nema pitanja." />
             </>
@@ -152,13 +169,11 @@ export default function Questions({}: Props) {
                                   >
                                     Odgovor:
                                   </Box>
-
                                   {item.answer}
                                 </Box>
                               )}
                             </Td>
                             <Td isNumeric>
-                              {/* <AddQuestion2Quiz /> */}
                               <IconButton
                                 colorScheme="red"
                                 aria-label="Delete question"
@@ -178,12 +193,16 @@ export default function Questions({}: Props) {
           )}
         </Stack>
         <HStack justify={"end"} mt={"4"}>
-          <Button
-            colorScheme={showAnswers ? "red" : "green"}
-            onClick={() => setShowAnswers(!showAnswers)}
-          >
-            {showAnswers ? "Sakrij odgovore" : "Prikazi odgovore"}
-          </Button>
+          {quizzes && quizzes.length === 0 ? null : (
+            <>
+              <Button
+                colorScheme={showAnswers ? "red" : "green"}
+                onClick={() => setShowAnswers(!showAnswers)}
+              >
+                {showAnswers ? "Sakrij odgovore" : "Prikazi odgovore"}
+              </Button>
+            </>
+          )}
         </HStack>
       </PageBox>
     </>

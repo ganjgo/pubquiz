@@ -16,6 +16,7 @@ import {
   Thead,
   Tr,
   Badge,
+  VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
@@ -37,6 +38,7 @@ export default function Result({}: Props) {
     queryFn: async () => {
       return await resultServices.fetchOne(Number(id));
     },
+    enabled: id !== undefined,
   });
 
   if (isLoading)
@@ -51,8 +53,6 @@ export default function Result({}: Props) {
         <ErrorPage message="Došlo je do greške prilikom učitavanja kviza." />
       </>
     );
-
-  console.log("resultssss", data);
 
   return (
     <>
@@ -106,16 +106,24 @@ export default function Result({}: Props) {
                           {data ? data.quizName : "kviz je obrisan"}
                         </Text>
                       </Box>
-                      <Box>
+                      <VStack alignItems={"left"}>
                         <Text fontSize="MD" fontWeight="bold">
-                          Rijesenje od igraca:
+                          Rezultat od igraca:
                         </Text>
-                        <Text fontSize="xl">
-                          {" "}
-                          PlayerName(byAdmin):{data.playerName}{" "}
-                          <Text>Username(byPlayer):{data.username}</Text>{" "}
-                        </Text>
-                      </Box>
+
+                        <HStack>
+                          <Text>PlayerName:</Text>
+                          <Badge colorScheme="green" p="1">
+                            {data.playerName}
+                          </Badge>
+                        </HStack>
+                        <HStack>
+                          <Text>UserName:</Text>
+                          <Badge colorScheme="blue" p="1">
+                            {data.username}
+                          </Badge>
+                        </HStack>
+                      </VStack>
                       {data.userAnswers && data.userAnswers.length > 0 && (
                         <>
                           {" "}
@@ -132,7 +140,6 @@ export default function Result({}: Props) {
                               <Thead>
                                 <Tr>
                                   <Th>Lista pitanja i odgovora</Th>
-                                  <Th></Th>
                                 </Tr>
                               </Thead>
                               <Tbody>
@@ -148,38 +155,19 @@ export default function Result({}: Props) {
                                       <Td>
                                         <Text fontSize="xl" pb="1">
                                           <Badge colorScheme="gray" p="1">
-                                            {answer.question.question}
+                                            {answer.questionData}
                                           </Badge>
                                         </Text>
 
                                         {isOriginalAnswer ? (
-                                          <Text>{answer.question.answer}</Text>
+                                          <Text>
+                                            {answer.question.question}
+                                          </Text>
                                         ) : (
                                           <Text>{answer.answer}</Text>
                                         )}
                                       </Td>
-                                      <Td>
-                                        <HStack justify="end">
-                                          {answer.question.answer &&
-                                          answer.question.length > 0 ? (
-                                            <Button
-                                              size="sm"
-                                              colorScheme="green"
-                                              onClick={() =>
-                                                setIsOriginalAnswer(
-                                                  !isOriginalAnswer
-                                                )
-                                              }
-                                            >
-                                              {isOriginalAnswer
-                                                ? "Prikazi odgovor igraca"
-                                                : "Prikazi odgovor"}
-                                            </Button>
-                                          ) : (
-                                            "nije sinhronizovan"
-                                          )}
-                                        </HStack>
-                                      </Td>
+                                      <Td></Td>
                                     </Tr>
                                   );
                                 })}
@@ -190,6 +178,17 @@ export default function Result({}: Props) {
                       )}
                     </>
                   </Stack>
+                  <HStack justify={"flex-end"}>
+                    <Button
+                      size="sm"
+                      colorScheme={isOriginalAnswer ? "blue" : "green"}
+                      onClick={() => setIsOriginalAnswer(!isOriginalAnswer)}
+                    >
+                      {isOriginalAnswer
+                        ? "Prikazi odgovore igraca"
+                        : "Prikazi izvorne odgovore"}
+                    </Button>
+                  </HStack>
                 </Stack>
               </>
             </>

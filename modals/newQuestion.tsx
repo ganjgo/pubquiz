@@ -64,7 +64,6 @@ export default function NewQuestion({ fromQuiz }: Props) {
 
   const { mutate, isLoading } = useMutation(questionServices.create, {
     onSuccess: (data) => {
-      console.log("dataID", data.data.id);
       queryClient.invalidateQueries(["questions"]);
       setOnCreateSpinner(false);
       toast({
@@ -92,6 +91,7 @@ export default function NewQuestion({ fromQuiz }: Props) {
     errors,
     handleBlur,
     touched,
+    setValues,
   } = useFormik({
     initialValues: {
       question: "",
@@ -101,14 +101,12 @@ export default function NewQuestion({ fromQuiz }: Props) {
     onSubmit: () => {
       if (values.question && values.answer) {
         setOnCreateSpinner(true);
-        console.log("values", values);
         let questionData = {
           question: values.question,
           answer: values.answer,
         };
         mutate(questionData);
-        values.question = "";
-        values.answer = "";
+        setValues({ question: "", answer: "" });
         onClose();
       }
     },

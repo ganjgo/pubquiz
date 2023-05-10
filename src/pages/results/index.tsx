@@ -1,7 +1,6 @@
 import Head from "next/head";
 import React from "react";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import quizServices from "../../../services/quizzesServices";
+import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import ErrorPage from "../../../components/common/ErrorPage";
 import PageBox from "../../../components/common/PageBox";
@@ -11,7 +10,6 @@ import {
   Heading,
   Hide,
   HStack,
-  IconButton,
   Stack,
   Table,
   TableContainer,
@@ -19,13 +17,11 @@ import {
   Td,
   Th,
   Thead,
-  useToast,
   Tr,
   useMediaQuery,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import NoContent from "../../../components/common/NoContent";
-import { BsTrash } from "react-icons/bs";
 import resultServices from "../../../services/resultsServices";
 
 interface Result {
@@ -41,9 +37,6 @@ interface Result {
 type Props = {};
 
 export default function Results({}: Props) {
-  const queryClient = useQueryClient();
-  const toast = useToast();
-
   const [isLargerThanPhone] = useMediaQuery("(min-width: 640px)");
 
   const { isLoading, isError, data } = useQuery({
@@ -52,8 +45,6 @@ export default function Results({}: Props) {
       return await resultServices.fetch();
     },
   });
-
-  console.log(data);
 
   if (isLoading)
     return (

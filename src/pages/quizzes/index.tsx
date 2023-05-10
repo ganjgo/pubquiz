@@ -67,8 +67,6 @@ export default function Quizzes({}: Props) {
     },
   });
 
-  console.log(data);
-
   if (isLoading)
     return (
       <>
@@ -164,7 +162,7 @@ export default function Quizzes({}: Props) {
                                 <Link href={`/quizzes/${item.id}`}>
                                   <Button colorScheme="blue">Uredi</Button>
                                 </Link>
-                                <Link href={`/quizzes/${item.id}`}>
+                                <Link href={`/playground/${item.id}`}>
                                   <Button colorScheme="green">Pogledaj</Button>
                                 </Link>
                                 <IconButton

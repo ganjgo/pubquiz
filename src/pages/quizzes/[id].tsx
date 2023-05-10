@@ -4,25 +4,19 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   Box,
   Button,
-  Container,
   FormControl,
   FormLabel,
-  Grid,
-  GridItem,
   Heading,
   HStack,
   Icon,
   IconButton,
   Input,
-  List,
-  ListItem,
   Stack,
   Table,
   TableContainer,
   Tbody,
   Td,
   Text,
-  Textarea,
   Th,
   Thead,
   Tooltip,
@@ -47,10 +41,13 @@ import { Question } from "../questions";
 import NewQuestion from "../../../modals/newQuestion";
 import QuestionsFromDB from "../../../modals/questionsFromDB";
 import QuizLink from "../../../modals/quizLink";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 
-type Props = {};
+type Props = {
+  specific: any;
+};
 
-export default function Quiz({}: Props) {
+export default function Quiz({ specific }: Props) {
   const router = useRouter();
   const { id } = router.query;
 
@@ -98,7 +95,6 @@ export default function Quiz({}: Props) {
     validationSchema: validationSchema,
     onSubmit: async () => {
       if (values.quizName) {
-        console.log("values", values);
         let newName = {
           quizId: Number(id),
           quizName: values.quizName,
@@ -125,7 +121,10 @@ export default function Quiz({}: Props) {
     queryFn: async () => {
       return await quizServices.fetchOne(Number(id));
     },
+    enabled: id !== undefined,
   });
+
+  console.log(data);
 
   React.useEffect(() => {
     if (data) {
@@ -162,8 +161,6 @@ export default function Quiz({}: Props) {
         <ErrorPage message="Došlo je do greške prilikom učitavanja kviza." />
       </>
     );
-
-  console.log(data);
 
   return (
     <>
@@ -207,14 +204,18 @@ export default function Quiz({}: Props) {
                         <Input
                           id="quizName"
                           key="quizName"
-                          value={values.quizName}
+                          value={values.quizName || ""}
                           name="quizName"
                           onChange={handleChangeAuto}
                           onBlur={handleBlur}
                           placeholder="Unesite naziv novog kviza"
                         />
                         {errors.quizName && (
-                          <HStack color={"red.500"} mt={2}>
+                          <HStack
+                            color={"red.500"}
+                            mt={2}
+                            direction={["column", "row"]}
+                          >
                             <Icon as={BsExclamationCircleFill} boxSize={5} />
                             <Text fontWeight={"medium"} fontSize={"sm"}>
                               Obavezno polje
@@ -226,7 +227,7 @@ export default function Quiz({}: Props) {
                         <FormLabel>
                           Dodajte pitanje iz arhive ili kreirajte novo pitanje
                         </FormLabel>
-                        <HStack justify={"end"}>
+                        <Stack justify={"end"} direction={["column", "row"]}>
                           <QuestionsFromDB
                             quizData={{
                               questions: data.questions,
@@ -234,7 +235,7 @@ export default function Quiz({}: Props) {
                             }}
                           />
                           <NewQuestion fromQuiz={data.id} />
-                        </HStack>
+                        </Stack>
                       </FormControl>
                       {data && data.questions && (
                         <>
@@ -315,9 +316,6 @@ export default function Quiz({}: Props) {
                                       <Td>
                                         <HStack justify="end">
                                           <IconButton
-                                            // onClick={() =>
-                                            //   handleRemoveClick(question.id)
-                                            // }
                                             aria-label={
                                               "Obrisi pitanje iz kviza"
                                             }
@@ -358,3 +356,21 @@ export default function Quiz({}: Props) {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (
+  ctx: GetServerSidePropsContext
+) => {
+  // const session = await getAuthSession(ctx);
+  // if (!session) {
+  // 	return {
+  // 		redirect: {
+  // 			destination: "/auth/login",
+  // 			permanent: false,
+  // 		},
+  // 	};
+  // }
+
+  return {
+    props: {},
+  };
+};

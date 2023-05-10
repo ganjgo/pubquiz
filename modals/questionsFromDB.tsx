@@ -114,8 +114,6 @@ export default function QuestionsFromDB({ quizData }: Props) {
       </>
     );
 
-  console.log(quizData, "quizData");
-
   return (
     <>
       <Button colorScheme={"blue"} rightIcon={<BsPlus />} onClick={onOpen}>

@@ -27,7 +27,11 @@ export default async function handler(
           },
         },
       });
-      return res.status(200).json(result);
+      if(id !== undefined){
+        return res.status(200).json(result);
+      } else {
+        return ('No results found')
+      }
     } else {
       const results = await prisma.results.findMany({
         include: {

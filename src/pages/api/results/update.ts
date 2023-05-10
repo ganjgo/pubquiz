@@ -56,7 +56,6 @@
 //   }
 // }
 
-
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -71,7 +70,6 @@ export default async function handler(
     const arrayOfNewUserAnswers = Object.values(updateResult.userAnswers);
 
     try {
-      // Step 1: Retrieve the userAnswers from the updateResult object
       const newAnswers = arrayOfNewUserAnswers.map((answer: any) =>
         prisma.userAnswer
           .create({
@@ -90,11 +88,22 @@ export default async function handler(
           })
       );
 
-      // Step 2: Create new userAnswers in the database
       const createdUserAnswers = await Promise.all(newAnswers);
 
       console.log(createdUserAnswers, "createdUserAnswers");
 
+      console.log(updateResult.id, "updateResult")
+
+      const result = await prisma.results.update({
+        where: {
+          id: parseInt(updateResult.resultId as any),
+        },
+        data: {
+          username: updateResult.username,
+        },
+      });
+
+      return res.status(200).json(result);
     } catch (error) {
       console.error("Error: ", error);
       return res.status(500).json({ message: "Internal server error" });

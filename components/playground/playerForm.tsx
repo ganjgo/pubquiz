@@ -21,12 +21,14 @@ type Props = {
   setInitialWord: any;
   resultId: any;
   setUserName: any;
+  isTest: boolean;
 };
 
 export default function PlayerForm({
   setInitialWord,
   resultId,
   setUserName,
+  isTest,
 }: Props) {
   const validationSchema = yup.object().shape({
     username: yup.string().required("Required"),
@@ -53,12 +55,6 @@ export default function PlayerForm({
           username: values.username,
           resultId: resultId,
         };
-        // try {
-        //   const response = resultServices.updateUsername(resultUpdate);
-        //   console.log("response", response);
-        // } catch (error) {
-        //   console.log("error", error);
-        // }
         setUserName(values.username);
       }
     },
@@ -89,6 +85,7 @@ export default function PlayerForm({
                       onBlur={handleBlur}
                       placeholder="Unesite vas nickname"
                       size={"lg"}
+                      isDisabled={isTest}
                     />
                     {touched.username && errors.username && (
                       <HStack color={"red.500"} mt={2}>
@@ -105,10 +102,13 @@ export default function PlayerForm({
                 colorScheme="green"
                 p={6}
                 fontSize="xl"
-                type="submit"
+                type={isTest ? "button" : "submit"}
                 form="username-form"
                 size={"lg"}
                 rightIcon={<Icon as={BsArrowRight} boxSize={5} />}
+                onClick={() => {
+                  setInitialWord(false);
+                }}
               >
                 Dalje
               </Button>

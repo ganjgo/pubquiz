@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useMutation } from "@tanstack/react-query";
 import resultServices from "../../services/resultsServices";
+import { useRouter } from "next/router";
 
 interface userAnswer {
   resultId: number;
@@ -24,7 +25,7 @@ interface userAnswer {
 type Props = {
   arrayUserAnswers: userAnswer[];
   username: string;
-  resultId: number;
+  resultId: any;
   quizId: number;
 };
 
@@ -34,24 +35,32 @@ export default function QuizFinalWords({
   resultId,
   username,
 }: Props) {
-  const [quizIsDone, setQuizIsDone] = React.useState(false);
+  const router = useRouter();
+
   const [onCreateSpinner, setOnCreateSpinner] = React.useState<boolean>(false);
+
+  const [quizFinished, setQuizFinished] = React.useState(false);
 
   const toast = useToast();
 
   const { mutate } = useMutation(resultServices.updateUserAnswers, {
     onSuccess: (data) => {
       toast({
-        title: "Novi kviz za igraca je kreiairan.",
+        title: "Uspješno ste odgovorili kviz!",
         status: "success",
       });
-      console.log("dataabout new result", data);
+      toast({
+        title: "Hvala na učešću!",
+        status: "success",
+        duration: 9000,
+      });
       setOnCreateSpinner(false);
+      setQuizFinished(true);
     },
     onError: (error) => {
       toast({
-        title: "Doslo je do greske.",
-        description: "Molimo Vas pokusajte ponovo.",
+        title: "Došlo je do greške.",
+        description: "Molimo Vas kontaktirajte admina ili pokušajte ponovno.",
         status: "error",
         duration: 9000,
         isClosable: true,
@@ -60,82 +69,91 @@ export default function QuizFinalWords({
     },
   });
 
-  console.log(quizId,'quizId') 
-  console.log(resultId,'resultId')
+  console.log(quizId, "quizId");
+  console.log(resultId, "resultId");
 
   return (
     <>
-      <Flex>
-        <Stack spacing={"6"} height={"auto"} pb="2" w="100%">
-          <Stack w="100%">
-            {quizIsDone ? (
-              <>
-                <VStack justify="center" align="center" w="100%">
-                  <Box textAlign="center">
-                    <Text fontSize="3xl">Kviz je završen</Text>
-                    <Text fontSize="3xl">Hvala na ucescu</Text>
-                  </Box>
-                </VStack>
-              </>
-            ) : (
-              <>
-                {" "}
-                <VStack justify="center" align="center" w="100%">
-                  <Box textAlign="center">
-                    <Text py="4" fontSize="3xl">
-                      Potvrdite vase odgovore
-                    </Text>
-                    <List
-                      p={"4"}
-                      border={"1px solid"}
-                      borderColor={"gray.200"}
-                      borderRadius={"lg"}
-                    >
-                      {arrayUserAnswers.map((item: any) => (
-                        <ListItem
-                          key={item.questionId}
-                          py={"1"}
-                          pl={"2"}
-                          textAlign={"left"}
+      {quizFinished ? (
+        <>
+          <Flex>
+            <Stack spacing={"6"} height={"auto"} pb="2" w="100%">
+              <Stack w="100%">
+                <>
+                  {" "}
+                  <VStack justify="center" align="center" w="100%">
+                    <Box textAlign="center">
+                      <Text py="4" fontSize="3xl">
+                        Hvala na učešću!
+                      </Text>
+                    </Box>
+                  </VStack>
+                </>
+              </Stack>
+            </Stack>
+          </Flex>
+        </>
+      ) : (
+        <>
+          <Flex>
+            <Stack spacing={"6"} height={"auto"} pb="2" w="100%">
+              <Stack w="100%">
+                <>
+                  {" "}
+                  <VStack justify="center" align="center" w="100%">
+                    <Box textAlign="center">
+                      <Text py="4" fontSize="3xl">
+                        Potvrdite vase odgovore
+                      </Text>
+                      <List
+                        p={"4"}
+                        border={"1px solid"}
+                        borderColor={"gray.200"}
+                        borderRadius={"lg"}
+                      >
+                        {arrayUserAnswers.map((item: any) => (
+                          <ListItem
+                            key={item.questionId}
+                            py={"1"}
+                            pl={"2"}
+                            textAlign={"left"}
+                          >
+                            <Box fontSize={"lg"}>
+                              <Badge bg="red.200">{item.question}</Badge>
+                            </Box>
+                            <Box fontSize={"md"}>
+                              <Badge bg="green.200">{item.answer}</Badge>
+                            </Box>
+                          </ListItem>
+                        ))}
+                      </List>
+                      <VStack mt={"4"} justifyContent={"center"}>
+                        <Button
+                          bg="green.400"
+                          onClick={() => {
+                            mutate({
+                              id: quizId,
+                              resultId: resultId,
+                              username: username,
+                              userAnswers: arrayUserAnswers,
+                            });
+                          }}
+                          isLoading={onCreateSpinner}
                         >
-                          <Box fontSize={"lg"}>
-                            <Badge bg="red.200">{item.question}</Badge>
-                          </Box>
-                          <Box fontSize={"md"}>
-                            <Badge bg="green.200">{item.answer}</Badge>
-                          </Box>
-                        </ListItem>
-                      ))}
-                    </List>
-                    <VStack mt={"4"} justifyContent={"center"}>
-                      <Button
-                        bg="green.400"
-                        onClick={() => {
-                          mutate({
-                            id: quizId,
-                            username: username,
-                            userAnswers: arrayUserAnswers,
-                          });
-                        }}
-                        isLoading={onCreateSpinner}
-
-                      >
-                        ZAVRSI KVIZ
-                      </Button>
-                      <Button
-                        bg="red.400"
-                        onClick={() => console.log("reset quiz")}
-                      >
-                        RESETUJ KVIZ
-                      </Button>
-                    </VStack>
-                  </Box>
-                </VStack>
-              </>
-            )}
-          </Stack>
-        </Stack>
-      </Flex>
+                          POŠALJI ODGOVORE
+                        </Button>
+                        <Button bg="red.400" onClick={() => router.reload()}>
+                          RESETUJ KVIZ
+                        </Button>
+                      </VStack>
+                    </Box>
+                  </VStack>
+                </>
+              </Stack>
+            </Stack>
+          </Flex>
+        </>
+      )}
     </>
   );
 }
