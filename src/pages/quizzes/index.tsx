@@ -26,6 +26,7 @@ import {
 import Link from "next/link";
 import NoContent from "../../../components/common/NoContent";
 import { BsPlus, BsTrash } from "react-icons/bs";
+import { getSession } from "next-auth/react";
 
 interface Quiz {
   id: number;
@@ -186,3 +187,18 @@ export default function Quizzes({}: Props) {
     </>
   );
 }
+
+export const getServerSideProps = async (context: any) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
+};

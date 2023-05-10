@@ -41,7 +41,7 @@ import { Question } from "../questions";
 import NewQuestion from "../../../modals/newQuestion";
 import QuestionsFromDB from "../../../modals/questionsFromDB";
 import QuizLink from "../../../modals/quizLink";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import { getSession } from "next-auth/react";
 
 type Props = {
   specific: any;
@@ -83,10 +83,8 @@ export default function Quiz({ specific }: Props) {
     handleSubmit,
     values,
     handleChange,
-    isValid,
     errors,
     handleBlur,
-    touched,
     setFieldValue,
   } = useFormik({
     initialValues: {
@@ -357,20 +355,17 @@ export default function Quiz({ specific }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext
-) => {
-  // const session = await getAuthSession(ctx);
-  // if (!session) {
-  // 	return {
-  // 		redirect: {
-  // 			destination: "/auth/login",
-  // 			permanent: false,
-  // 		},
-  // 	};
-  // }
-
+export const getServerSideProps = async (context: any) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
   return {
-    props: {},
+    props: { session },
   };
 };

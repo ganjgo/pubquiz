@@ -106,11 +106,20 @@ export default function PlayerForm({
                 form="username-form"
                 size={"lg"}
                 rightIcon={<Icon as={BsArrowRight} boxSize={5} />}
-                onClick={() => {
-                  setInitialWord(false);
-                }}
               >
-                Dalje
+                {isTest ? (
+                  <>
+                    <Box
+                      onClick={() => {
+                        setInitialWord(false);
+                      }}
+                    >
+                      s
+                    </Box>
+                  </>
+                ) : (
+                  <>Dalje</>
+                )}
               </Button>
             </VStack>
           </Stack>

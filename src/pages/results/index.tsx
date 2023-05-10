@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import NoContent from "../../../components/common/NoContent";
 import resultServices from "../../../services/resultsServices";
+import { getSession } from "next-auth/react";
 
 interface Result {
   id: number;
@@ -44,6 +45,7 @@ export default function Results({}: Props) {
     queryFn: async () => {
       return await resultServices.fetch();
     },
+    refetchOnMount: false,
   });
 
   if (isLoading)
@@ -58,6 +60,8 @@ export default function Results({}: Props) {
         <ErrorPage />
       </>
     );
+
+    console.log(data)
 
   return (
     <>
@@ -154,3 +158,18 @@ export default function Results({}: Props) {
     </>
   );
 }
+
+export const getServerSideProps = async (context: any) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
+};

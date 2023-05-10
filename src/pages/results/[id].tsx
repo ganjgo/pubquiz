@@ -24,6 +24,7 @@ import ErrorPage from "../../../components/common/ErrorPage";
 import PageBox from "../../../components/common/PageBox";
 import NoContent from "../../../components/common/NoContent";
 import resultServices from "../../../services/resultsServices";
+import { getSession } from "next-auth/react";
 
 type Props = {};
 
@@ -198,3 +199,18 @@ export default function Result({}: Props) {
     </>
   );
 }
+
+export const getServerSideProps = async (context: any) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
+};

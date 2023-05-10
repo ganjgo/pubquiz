@@ -23,6 +23,7 @@ import { BsTrash } from "react-icons/bs";
 import ErrorPage from "../../../components/common/ErrorPage";
 import NewQuestion from "../../../modals/newQuestion";
 import quizServices from "../../../services/quizzesServices";
+import { getSession } from "next-auth/react";
 
 type Props = {};
 
@@ -83,8 +84,6 @@ export default function Questions({}: Props) {
         <ErrorPage />
       </>
     );
-
-  console.log(quizzes.length);
 
   return (
     <>
@@ -208,3 +207,18 @@ export default function Questions({}: Props) {
     </>
   );
 }
+
+export const getServerSideProps = async (context: any) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
+};

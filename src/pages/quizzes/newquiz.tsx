@@ -1,59 +1,32 @@
 import Head from "next/head";
 import React from "react";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import {
-  Box,
   Button,
-  Container,
   FormControl,
   FormLabel,
-  Grid,
-  GridItem,
   Heading,
   HStack,
   Icon,
-  IconButton,
   Input,
-  List,
-  ListItem,
   Stack,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
   Text,
-  Textarea,
-  Th,
-  Thead,
-  Tooltip,
-  Tr,
   useToast,
 } from "@chakra-ui/react";
 import quizServices from "../../../services/quizzesServices";
 import { useRouter } from "next/router";
-import LoadingSpinner from "../../../components/common/LoadingSpinner";
-import ErrorPage from "../../../components/common/ErrorPage";
 import PageBox from "../../../components/common/PageBox";
-import NoContent from "../../../components/common/NoContent";
-import {
-  BsExclamationCircleFill,
-  BsLightbulbFill,
-  BsLightbulbOffFill,
-  BsTrash,
-} from "react-icons/bs";
+
+import { BsExclamationCircleFill } from "react-icons/bs";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { Question } from "../questions";
-import NewQuestion from "../../../modals/newQuestion";
-import QuestionsFromDB from "../../../modals/questionsFromDB";
+import { getSession } from "next-auth/react";
 
 type Props = {};
 
 export default function NewQuiz({}: Props) {
   const router = useRouter();
-  const { id } = router.query;
 
-  const [makingNewQuiz, setMakingNewQuiz] = React.useState<boolean>(true);
   const [onCreateSpinner, setOnCreateSpinner] = React.useState<boolean>(false);
 
   const queryClient = useQueryClient();
@@ -63,23 +36,13 @@ export default function NewQuiz({}: Props) {
     quizName: yup.string().required("Required"),
   });
 
-  const {
-    handleSubmit,
-    values,
-    handleChange,
-    isValid,
-    errors,
-    handleBlur,
-    touched,
-    setFieldValue,
-  } = useFormik({
+  const { handleSubmit, values, handleChange, errors, handleBlur } = useFormik({
     initialValues: {
       quizName: "",
     },
     validationSchema: validationSchema,
     onSubmit: async () => {
       if (values.quizName) {
-        console.log("values", values);
         let newQuiz = {
           name: values.quizName,
         };
@@ -174,3 +137,18 @@ export default function NewQuiz({}: Props) {
     </>
   );
 }
+
+export const getServerSideProps = async (context: any) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
+};

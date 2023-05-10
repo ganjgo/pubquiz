@@ -36,7 +36,7 @@ type TNavItem = {
 export default function Layout({ children }: Props) {
   const sidebar = useDisclosure();
   const router = useRouter();
-  // const session = useSession();
+  const session = useSession();
 
   const UserButton = () => {
     return (
@@ -57,8 +57,11 @@ export default function Layout({ children }: Props) {
         <HStack spacing={4}>
           <Avatar size={"md"} />
           <Stack spacing={0}>
+            <Text fontSize={"sm"} fontWeight={"normal"}>
+              Korisnik:
+            </Text>
             <Text fontSize={"md"} fontWeight={"bold"}>
-              ovdje unijeti ime logovanog korisnika
+              {session.data?.user?.name}
             </Text>
           </Stack>
         </HStack>
@@ -223,7 +226,11 @@ export default function Layout({ children }: Props) {
     );
   }
 
-  if (router.pathname === "/not-active") {
+  if (router.pathname === "/auth/login") {
+    return <>{children}</>;
+  }
+
+  if (router.pathname === "/" && session.status !== "authenticated") {
     return <>{children}</>;
   }
 

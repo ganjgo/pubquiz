@@ -27,6 +27,7 @@ import QuizFinalWords from "../../../components/playground/quizFinalWord";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import ErrorPage from "../../../components/common/ErrorPage";
 import quizServices from "../../../services/quizzesServices";
+import { getSession } from "next-auth/react";
 
 type Props = {};
 
@@ -144,8 +145,6 @@ function Playground({}: Props) {
         <ErrorPage message="Došlo je do greške prilikom učitavanja kviza." />
       </>
     );
-
-  console.log(data);
 
   return (
     <Box
@@ -284,3 +283,18 @@ function Playground({}: Props) {
 }
 
 export default Playground;
+
+export const getServerSideProps = async (context: any) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
+};

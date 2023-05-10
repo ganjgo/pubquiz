@@ -7,11 +7,9 @@ import {
   FormLabel,
   HStack,
   Icon,
-  Input,
   Stack,
   Text,
   Textarea,
-  VStack,
 } from "@chakra-ui/react";
 import React from "react";
 import { BsArrowRight, BsExclamationCircleFill } from "react-icons/bs";
@@ -24,6 +22,7 @@ import QuizFinalWords from "../../components/playground/quizFinalWord";
 import resultServices from "../../services/resultsServices";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import ErrorPage from "../../components/common/ErrorPage";
+import { getSession } from "next-auth/react";
 
 type Props = {};
 
@@ -85,7 +84,6 @@ function Playground({}: Props) {
     },
   });
 
-
   const { isLoading, isError, data } = useQuery({
     queryKey: ["results"],
     queryFn: async () => {
@@ -94,7 +92,12 @@ function Playground({}: Props) {
     enabled: id !== undefined,
   });
 
-  if (data && data.quiz.questions.length > 0) {
+  if (
+    data &&
+    data.quiz !== null &&
+    data.quiz.questions &&
+    data.quiz.questions.length > 0
+  ) {
     data.quiz.questions.forEach((question: any) => {
       let questionObject = {
         id: question.id,
@@ -105,8 +108,12 @@ function Playground({}: Props) {
     });
   }
 
-  if (isLoading) {
-    return <LoadingSpinner />;
+  if (data && data.quiz === null) {
+    return <ErrorPage message="Ne postoji playground za ovaj kviz." />;
+  }
+
+  if (data === null) {
+    return <ErrorPage message="Ovaj kviz ne postoji." />;
   }
 
   if (isLoading)
@@ -122,12 +129,14 @@ function Playground({}: Props) {
       </>
     );
 
-  if (data.userAnswers.length > 0)
+  if (data && data.userAnswers && data.userAnswers.length > 0)
     return (
       <>
         <ErrorPage message="Ovaj kviz je završen. Hvala na interesovanju!" />
       </>
     );
+
+  console.log("data", data);
 
   return (
     <Box
@@ -155,6 +164,7 @@ function Playground({}: Props) {
                 setInitialWord={setInitialWord}
                 resultId={id}
                 setUserName={setUserName}
+                isTest={false}
               />
             </>
           ) : finalWord ? (
@@ -284,3 +294,18 @@ function Playground({}: Props) {
 }
 
 export default Playground;
+
+export const getServerSideProps = async (context: any) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
+};
