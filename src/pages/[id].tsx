@@ -105,7 +105,7 @@ function Playground({}: Props) {
         };
         console.log("user answer", userAnswer);
         setArrayUserAnswers((prevArray) => [...prevArray, userAnswer]);
-        setValues({ answer: "" }); // update form values using setValues
+        setValues({ answer: "" });
         if (currentIndex !== ArrayOfThisQuiz.length - 1) {
           nextSlide();
         } else {

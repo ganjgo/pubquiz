@@ -24,14 +24,13 @@ const resultServices = {
     });
     return data;
   },
-  create: async (playerName: string, quizId: number) => {
+  create: async (dataForCreate: any) => {
     const { data } = await axios.post("/api/results", {
-      playerName,
-      quizId,
+      dataForCreate,
     });
     return data;
   },
-  updateUsername: async (updateResult : any) => {
+  updateUsername: async (updateResult: any) => {
     console.log(updateResult.username, "username");
     const { data } = await axios.put(`/api/results?id=${updateResult.id}`, {
       updateResult,

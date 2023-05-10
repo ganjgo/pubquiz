@@ -30,8 +30,8 @@ export default async function handler(
       return res.status(200).json(results);
     }
   } else if (req.method === "PUT") {
-    const  dataForUpdate  = req.body;
-    console.log(dataForUpdate.username,'username');
+    const dataForUpdate = req.body;
+    console.log(dataForUpdate.username, "username");
     if (dataForUpdate.id) {
       const result = await prisma.results.update({
         where: {
@@ -43,5 +43,20 @@ export default async function handler(
       });
       return res.status(200).json(result);
     }
+  } else if (req.method === "POST") {
+    const { dataForCreate } = req.body;
+    console.log(dataForCreate, "dataForCreate222");
+    const result = await prisma.results.create({
+      data: {
+        playerName: dataForCreate.playerName,
+        quiz: {
+          connect: {
+            id: Number(dataForCreate.quizId),
+          },
+        },
+        quizName: dataForCreate.quizName,
+      },
+    });
+    return res.status(200).json(result);
   }
 }

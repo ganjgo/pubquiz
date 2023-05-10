@@ -38,8 +38,8 @@ model UserAnswer {
 model Results {
   id          Int          @id @default(autoincrement())
   quiz        Quizzes?     @relation(fields: [quizId], references: [id])
-  quizId      Int?
-  quizName    String?
+  quizId      Int
+  quizName    String
   username    String?
   playerName  String
   userAnswers UserAnswer[]

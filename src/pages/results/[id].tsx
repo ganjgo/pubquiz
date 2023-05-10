@@ -112,7 +112,8 @@ export default function Result({}: Props) {
                         </Text>
                         <Text fontSize="xl">
                           {" "}
-                          {data.playerName} <Text>{data.username}</Text>{" "}
+                          PlayerName(byAdmin):{data.playerName}{" "}
+                          <Text>Username(byPlayer):{data.username}</Text>{" "}
                         </Text>
                       </Box>
                       {data.userAnswers && data.userAnswers.length > 0 && (

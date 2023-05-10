@@ -46,6 +46,7 @@ import { useFormik } from "formik";
 import { Question } from "../questions";
 import NewQuestion from "../../../modals/newQuestion";
 import QuestionsFromDB from "../../../modals/questionsFromDB";
+import QuizLink from "../../../modals/quizLink";
 
 type Props = {};
 
@@ -119,8 +120,6 @@ export default function Quiz({}: Props) {
     },
   });
 
-
-
   const { isLoading, isError, data } = useQuery({
     queryKey: ["quizzes"],
     queryFn: async () => {
@@ -140,17 +139,16 @@ export default function Quiz({}: Props) {
     const timer = setTimeout(() => {
       handleSubmit();
     }, 2000);
-  
+
     return () => {
       clearTimeout(timer);
     };
   }, [inputValue, handleSubmit]);
-  
+
   const handleChangeAuto = (event: any) => {
     handleChange(event);
     setInputValue(event.target.value);
   };
-  
 
   if (isLoading)
     return (
@@ -350,6 +348,12 @@ export default function Quiz({}: Props) {
             </>
           )}
         </Stack>
+        <HStack justifyContent="space-between" mt={"4"}>
+          <QuizLink quizData={data} />
+          <Button variant={"outline"} colorScheme={"red"}>
+            Obriši Kviz
+          </Button>
+        </HStack>
       </PageBox>
     </>
   );
