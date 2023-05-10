@@ -38,7 +38,6 @@ function Playground({}: Props) {
   const router = useRouter();
   const { id } = router.query;
   const ArrayOfThisQuiz: { id?: any; question: any; answer: any }[] = [];
-  const [quizResults, setQuizResults] = useState<any>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [ShowAnswer, setShowAnswer] = useState(false);
   const [finalWord, setFinalWord] = useState<boolean>(false);
@@ -53,20 +52,9 @@ function Playground({}: Props) {
     setCurrentIndex(currentIndex === 0 ? currentIndex : currentIndex - 1);
   };
 
-  function handleAddObject() {
-    const newObj = {
-      question: "What is the capital of France?",
-      answer: "Paris",
-    };
-
-    // Update the quizResults state with the new object
-    setQuizResults((prevState: any) => ({
-      ...prevState,
-      [Object.keys(prevState).length]: newObj,
-    }));
-    console.log("mujo", quizResults);
-    handleFinishQuiz();
-  }
+  React.useEffect(() => {
+    console.log("user namex", userName);
+  }, [userName]);
 
   const validationSchema = yup.object().shape({
     answer: yup.string().required("Required"),
@@ -97,6 +85,7 @@ function Playground({}: Props) {
     validationSchema: validationSchema,
     onSubmit: (formValues) => {
       if (formValues.answer) {
+        console.log("form values", formValues);
         let userAnswer = {
           questionId: ArrayOfThisQuiz[currentIndex].id,
           question: ArrayOfThisQuiz[currentIndex].question,
@@ -115,16 +104,33 @@ function Playground({}: Props) {
     },
   });
 
-
-  const { isLoading, isError, data } = useQuery({
-    queryKey: ["results"],
-    queryFn: async () => {
-      return await resultServices.fetch();
+  const { isLoading, data, isError } = useQuery<any>(
+    ["results", id],
+    async () => {
+      const response = await axios.get(`/api/results?id=${id}`);
+      return response.data;
     },
-  });
+    {
+      refetchOnMount: false,
+    }
+  );
 
+  if (data && data.quiz.questions.length > 0) {
+    data.quiz.questions.forEach((question: any) => {
+      let questionObject = {
+        id: question.id,
+        question: question.question,
+        answer: question.answer,
+      };
+      ArrayOfThisQuiz.push(questionObject);
+    });
+  }
 
-  console.log(data);
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // console.log(data.quiz.id);
 
   if (isLoading)
     return (
@@ -135,32 +141,9 @@ function Playground({}: Props) {
   if (isError)
     return (
       <>
-        <ErrorPage />
+        <ErrorPage message="Došlo je do greške prilikom učitavanja kviza." />
       </>
     );
-
-
-//   if (data && data.quiz.questions.length > 0) {
-//     data.quiz.questions.forEach((question: any) => {
-//       let questionObject = {
-//         id: question.id,
-//         question: question.question,
-//         answer: question.answer,
-//       };
-//       ArrayOfThisQuiz.push(questionObject);
-//       console.log("iz petlje", questionObject);
-//     });
-//   }
-
-//   if (data && data.quiz.questions.length === 0) {
-//     return (
-//       <div>There are no questions for this quiz, quiz is not finished</div>
-//     );
-//   }
-
-//   if (isLoading) {
-//     return <div>Loading...</div>;
-//   }
 
   return (
     <Box
@@ -188,11 +171,17 @@ function Playground({}: Props) {
               <PlayerForm
                 setInitialWord={setInitialWord}
                 resultId={id}
+                setUserName={setUserName}
               />
             </>
           ) : finalWord ? (
             <>
-              <QuizFinalWords />
+              <QuizFinalWords
+                arrayUserAnswers={arrayUserAnswers}
+                username={userName}
+                quizId={data.quiz.id}
+                resultId={22}
+              />
             </>
           ) : (
             <>

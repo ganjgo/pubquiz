@@ -9,7 +9,7 @@ datasource db {
 
 model Quizzes {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String?
   questions Questions[]
   results   Results[]
   createdAt DateTime @default(now())
@@ -38,7 +38,7 @@ model UserAnswer {
 model Results {
   id          Int          @id @default(autoincrement())
   quiz        Quizzes?     @relation(fields: [quizId], references: [id])
-  quizId      Int
+  quizId      Int?
   quizName    String
   username    String?
   playerName  String

@@ -15,15 +15,27 @@ export default async function handler(
           id: parseInt(id as any),
         },
         include: {
-          quiz: true,
-          userAnswers: true,
+          quiz: {
+            include: {
+              questions: true,
+            },
+          },
+          userAnswers: {
+            include: {
+              question: true,
+            }
+          },
         },
       });
       return res.status(200).json(result);
     } else {
       const results = await prisma.results.findMany({
         include: {
-          quiz: true,
+          quiz: {
+            include: {
+              questions: true,
+            }
+          },
           userAnswers: true,
         },
       });

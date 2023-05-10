@@ -37,6 +37,17 @@ const resultServices = {
     });
     return data;
   },
+  delete: async (id: number) => {
+    const { data } = await axios.delete(`/api/results?id=${id}`);
+    return data;
+  },
+  updateUserAnswers: async (updateResult: any) => {
+    console.log(updateResult, "userAnswers")
+    const { data } = await axios.put(`/api/results/update?id=${updateResult.id}`, {
+      updateResult,
+    });
+    return data;
+  },
 };
 
 export default resultServices;

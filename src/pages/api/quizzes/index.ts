@@ -41,6 +41,7 @@ export default async function handler(
         },
         include: {
           questions: true,
+          results: true,
         },
       });
       return res.status(200).json(quiz);
@@ -48,6 +49,7 @@ export default async function handler(
       const quizzes = await prisma.quizzes.findMany({
         include: {
           questions: true,
+          results: true,
         },
       });
       return res.status(200).json(quizzes);

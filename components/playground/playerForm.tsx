@@ -14,15 +14,20 @@ import {
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { BsExclamationCircleFill } from "react-icons/bs";
+import { BsArrowRight, BsExclamationCircleFill } from "react-icons/bs";
 import resultServices from "../../services/resultsServices";
 
 type Props = {
   setInitialWord: any;
   resultId: any;
+  setUserName: any;
 };
 
-export default function PlayerForm({ setInitialWord, resultId }: Props) {
+export default function PlayerForm({
+  setInitialWord,
+  resultId,
+  setUserName,
+}: Props) {
   const validationSchema = yup.object().shape({
     username: yup.string().required("Required"),
   });
@@ -42,19 +47,19 @@ export default function PlayerForm({ setInitialWord, resultId }: Props) {
     validationSchema: validationSchema,
     onSubmit: () => {
       if (values.username) {
-        // setInitialWord(false);
+        setInitialWord(false);
         console.log("username", values.username);
         let resultUpdate = {
-            username: values.username,
-            resultId: resultId
-        }
-        try {
-            const response = resultServices.updateUsername(resultUpdate);
-            console.log("response", response);
-        } catch (error) {
-            console.log("error", error);
-        }
-
+          username: values.username,
+          resultId: resultId,
+        };
+        // try {
+        //   const response = resultServices.updateUsername(resultUpdate);
+        //   console.log("response", response);
+        // } catch (error) {
+        //   console.log("error", error);
+        // }
+        setUserName(values.username);
       }
     },
   });
@@ -67,18 +72,23 @@ export default function PlayerForm({ setInitialWord, resultId }: Props) {
           <Stack w="100%">
             <VStack justify="center" align="center" w="100%">
               <Box textAlign="center">
-                <Text fontSize="3xl">Dobro dosli u EnterWell kviz</Text>
-                <Text fontSize="3xl">unesite vase ime</Text>
+                <Text my="5" fontSize="3xl">
+                  Dobro dosli u Enterwell kviz!
+                </Text>
+
                 <form id="username-form" onSubmit={handleSubmit}>
                   <FormControl py="3">
-                    <FormLabel>Ime:</FormLabel>
+                    <FormLabel fontSize="xl" htmlFor="username">
+                      Molimo Vas da unesete nickname:
+                    </FormLabel>
                     <Input
                       id="username"
                       value={values.username}
                       name="username"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      placeholder="Unesite vase ime"
+                      placeholder="Unesite vas nickname"
+                      size={"lg"}
                     />
                     {touched.username && errors.username && (
                       <HStack color={"red.500"} mt={2}>
@@ -97,8 +107,10 @@ export default function PlayerForm({ setInitialWord, resultId }: Props) {
                 fontSize="xl"
                 type="submit"
                 form="username-form"
+                size={"lg"}
+                rightIcon={<Icon as={BsArrowRight} boxSize={5} />}
               >
-                Zapocni kviz
+                Dalje
               </Button>
             </VStack>
           </Stack>

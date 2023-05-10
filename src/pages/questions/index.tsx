@@ -93,7 +93,7 @@ export default function Questions({}: Props) {
           <Heading fontWeight={"normal"}>Pitanja</Heading>
           {/* Add multi button if needed */}
           <HStack>
-            <NewQuestion/>
+            <NewQuestion />
           </HStack>
         </HStack>
         {/* Page content */}

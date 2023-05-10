@@ -52,7 +52,7 @@ export default function Result({}: Props) {
       </>
     );
 
-  console.log("resultss", data);
+  console.log("resultssss", data);
 
   return (
     <>

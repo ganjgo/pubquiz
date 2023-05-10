@@ -9,9 +9,11 @@ import {
   Stack,
   Text,
   VStack,
+  List,
+  useToast,
 } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation } from "@tanstack/react-query";
+import resultServices from "../../services/resultsServices";
 
 interface userAnswer {
   resultId: number;
@@ -19,48 +21,81 @@ interface userAnswer {
   answer: string;
 }
 
-type Props = {};
+type Props = {
+  arrayUserAnswers: userAnswer[];
+  username: string;
+  resultId: number;
+  quizId: number;
+};
 
-export default function QuizFinalWords({}: Props) {
+export default function QuizFinalWords({
+  arrayUserAnswers,
+  quizId,
+  resultId,
+  username,
+}: Props) {
   const [quizIsDone, setQuizIsDone] = React.useState(false);
+  const [onCreateSpinner, setOnCreateSpinner] = React.useState<boolean>(false);
 
-  const { data, isLoading, error } = useQuery(["userAnswers"], () =>
-    axios.get("/api/useranswer").then((res) => res.data)
-  );
+  const toast = useToast();
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const { mutate } = useMutation(resultServices.updateUserAnswers, {
+    onSuccess: (data) => {
+      toast({
+        title: "Novi kviz za igraca je kreiairan.",
+        status: "success",
+      });
+      console.log("dataabout new result", data);
+      setOnCreateSpinner(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Doslo je do greske.",
+        description: "Molimo Vas pokusajte ponovo.",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+      setOnCreateSpinner(false);
+    },
+  });
 
-  if (error) {
-    return <div>Error</div>;
-  }
+  console.log(quizId,'quizId') 
+  console.log(resultId,'resultId')
 
   return (
     <>
       <Flex>
         <Stack spacing={"6"} height={"auto"} pb="2" w="100%">
-          {/* Put all page content inside this flex */}
           <Stack w="100%">
             {quizIsDone ? (
-              <>party is done, back to coding</>
+              <>
+                <VStack justify="center" align="center" w="100%">
+                  <Box textAlign="center">
+                    <Text fontSize="3xl">Kviz je završen</Text>
+                    <Text fontSize="3xl">Hvala na ucescu</Text>
+                  </Box>
+                </VStack>
+              </>
             ) : (
               <>
                 {" "}
                 <VStack justify="center" align="center" w="100%">
                   <Box textAlign="center">
-                    <Text fontSize="3xl">Kviz je završen</Text>
-                    <Text fontSize="3xl">Hvala na ucescu</Text>
-                    <OrderedList
+                    <Text py="4" fontSize="3xl">
+                      Potvrdite vase odgovore
+                    </Text>
+                    <List
                       p={"4"}
                       border={"1px solid"}
                       borderColor={"gray.200"}
                       borderRadius={"lg"}
                     >
-                      {data.map((item: any) => (
+                      {arrayUserAnswers.map((item: any) => (
                         <ListItem
                           key={item.questionId}
                           py={"1"}
+                          pl={"2"}
                           textAlign={"left"}
                         >
                           <Box fontSize={"lg"}>
@@ -71,13 +106,27 @@ export default function QuizFinalWords({}: Props) {
                           </Box>
                         </ListItem>
                       ))}
-                    </OrderedList>
+                    </List>
                     <VStack mt={"4"} justifyContent={"center"}>
                       <Button
                         bg="green.400"
-                        onClick={() => console.log("end quiz")}
+                        onClick={() => {
+                          mutate({
+                            id: quizId,
+                            username: username,
+                            userAnswers: arrayUserAnswers,
+                          });
+                        }}
+                        isLoading={onCreateSpinner}
+
                       >
                         ZAVRSI KVIZ
+                      </Button>
+                      <Button
+                        bg="red.400"
+                        onClick={() => console.log("reset quiz")}
+                      >
+                        RESETUJ KVIZ
                       </Button>
                     </VStack>
                   </Box>

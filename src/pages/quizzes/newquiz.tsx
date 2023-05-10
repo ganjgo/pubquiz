@@ -131,6 +131,7 @@ export default function NewQuiz({}: Props) {
             spacing={6}
             maxH={"calc(100vh - 200px)"}
             overflowY="scroll"
+            overflow={"hidden"}
           >
             <form onSubmit={handleSubmit} id={"player-update-form"}>
               <Stack>

@@ -27,7 +27,6 @@ import { BsExclamationCircleFill, BsPlus } from "react-icons/bs";
 import { useSession } from "next-auth/react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 
 import { useRouter } from "next/router";
@@ -50,34 +49,27 @@ export default function QuizLink({ quizData }: Props) {
     playerName: yup.string().required("Required"),
   });
 
-//   const createResult = async (dataForNewResult: any) => {
-//     const data = await axios
-//       .post("/api/results", dataForNewResult)
-//       .then((response) => {
-//         console.log("response", response.data.id);
-//         // router.push(`/playground/${response.data.id}`);
-//         setPlayerQuizData(`/playground/${response.data.id}`);
-//       });
-//     return data;
-//   };
-
-const {mutate} = useMutation(resultServices.create, {
+  const { mutate } = useMutation(resultServices.create, {
     onSuccess: (data) => {
-        toast({
-            title: "Novi kviz za igraca je kreiairan.",
-            status: "success",
-          });
+      toast({
+        title: "Novi kviz za igraca je kreiairan.",
+        status: "success",
+      });
+      console.log("dataabout new result", data);
+      setPlayerQuizData(`http://localhost:3000/${data.id}`);
+      setOnCreateSpinner(false);
     },
     onError: (error) => {
-        toast({
-            title: "Doslo je do greske.",
-            description: "Molimo Vas pokusajte ponovo.",
-            status: "error",
-            duration: 9000,
-            isClosable: true,
-          });
-    }
-})
+      toast({
+        title: "Doslo je do greske.",
+        description: "Molimo Vas pokusajte ponovo.",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+      setOnCreateSpinner(false);
+    },
+  });
 
   const {
     handleSubmit,
@@ -101,6 +93,7 @@ const {mutate} = useMutation(resultServices.create, {
           quizName: quizData.name,
         };
         mutate(newResultData);
+        setOnCreateSpinner(true);
         values.playerName = "";
       }
     },
