@@ -20,16 +20,14 @@ const authOptions: NextAuthOptions = {
 
         return {
           id: "1234",
-          name: "Mujo",
-          email: "mujo@gmail.com",
+          name: "Rejd",
+          email: "rejd@enterwell.com",
         };
       },
     }),
   ],
   pages: {
     signIn: "/auth/login",
-    // error: '/auth/error',
-    // signOut: '/auth/signout'
   },
   callbacks: {
     jwt(params) {

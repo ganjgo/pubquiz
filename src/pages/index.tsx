@@ -37,7 +37,7 @@ interface Result {
 
 type Props = {};
 
-export default function Results({}: Props) {
+export default function Index({}: Props) {
   const [isLargerThanPhone] = useMediaQuery("(min-width: 640px)");
 
   const { isLoading, isError, data } = useQuery({
