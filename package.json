@@ -13,6 +13,7 @@
     "@chakra-ui/react": "^2.6.1",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
+    "@next-auth/prisma-adapter": "0.4.4-canary.81",
     "@prisma/client": "^4.14.0",
     "@prisma/studio": "^0.484.0",
     "@tanstack/react-query": "^4.29.5",
