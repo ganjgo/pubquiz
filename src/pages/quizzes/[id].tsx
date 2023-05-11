@@ -122,7 +122,6 @@ export default function Quiz({ specific }: Props) {
     enabled: id !== undefined,
   });
 
-  console.log(data);
 
   React.useEffect(() => {
     if (data) {

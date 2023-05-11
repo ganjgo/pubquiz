@@ -52,7 +52,6 @@ const quizServices = {
     return data;
   },
   create: async (quiz: Quiz) => {
-    console.log(quiz, "quiz");
     const { data } = await axios.post("/api/quizzes", quiz);
     return data;
   }

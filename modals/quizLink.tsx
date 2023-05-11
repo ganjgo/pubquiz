@@ -55,7 +55,6 @@ export default function QuizLink({ quizData }: Props) {
         title: "Novi kviz za igraca je kreiairan.",
         status: "success",
       });
-      console.log("dataabout new result", data);
       setPlayerQuizData(`http://localhost:3000/${data.id}`);
       setOnCreateSpinner(false);
     },
@@ -86,7 +85,6 @@ export default function QuizLink({ quizData }: Props) {
     validationSchema: validationSchema,
     onSubmit: () => {
       if (values.playerName) {
-        console.log("values", values);
         let newResultData = {
           playerName: values.playerName,
           quizId: quizData.id,

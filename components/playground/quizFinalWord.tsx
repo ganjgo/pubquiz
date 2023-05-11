@@ -5,7 +5,6 @@ import {
   Button,
   Flex,
   ListItem,
-  OrderedList,
   Stack,
   Text,
   VStack,
@@ -69,8 +68,6 @@ export default function QuizFinalWords({
     },
   });
 
-  console.log(quizId, "quizId");
-  console.log(resultId, "resultId");
 
   return (
     <>

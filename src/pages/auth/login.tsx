@@ -41,13 +41,11 @@ export default function Login({}: any) {
             username: values.username,
             password: values.password,
           };
-          console.log(loginData);
           const login = await signIn("credentials", {
             username: values.username,
             password: values.password,
             redirect: false,
           });
-          console.log(login, "mujo");
           if (login && login.status === 200) {
             toast({
               title: "Uspješno ste se prijavili.",

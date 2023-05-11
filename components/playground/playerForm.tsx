@@ -50,11 +50,6 @@ export default function PlayerForm({
     onSubmit: () => {
       if (values.username) {
         setInitialWord(false);
-        console.log("username", values.username);
-        let resultUpdate = {
-          username: values.username,
-          resultId: resultId,
-        };
         setUserName(values.username);
       }
     },

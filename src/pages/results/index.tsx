@@ -61,8 +61,6 @@ export default function Results({}: Props) {
       </>
     );
 
-    console.log(data)
-
   return (
     <>
       <Head>

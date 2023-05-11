@@ -95,6 +95,7 @@ function Playground({}: Props) {
   if (
     data &&
     data.quiz !== null &&
+    data.quiz !== undefined &&
     data.quiz.questions &&
     data.quiz.questions.length > 0
   ) {
@@ -135,8 +136,6 @@ function Playground({}: Props) {
         <ErrorPage message="Ovaj kviz je završen. Hvala na interesovanju!" />
       </>
     );
-
-  console.log("data", data);
 
   return (
     <Box
